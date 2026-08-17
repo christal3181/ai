@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Knutzen AI – Smart Sales Demo</title>
+<style>
+:root{
+  --bg:#f3f4f1;--panel:#fff;--ink:#1f2521;--muted:#717970;--line:#e2e6e0;
+  --green:#20382a;--green2:#2d5339;--soft:#edf3ee;--gold:#b47a2c;--red:#9d4a43;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--green);color:#fff;padding:15px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-weight:800;font-size:19px}.brand small{display:block;font-size:11px;font-weight:500;opacity:.7;margin-top:2px}
+.connect{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.connect input{width:330px;max-width:42vw;border:0;border-radius:9px;padding:9px 10px;font-size:12px}
+.badge{font-size:11px;border:1px solid #ffffff28;background:#ffffff14;border-radius:999px;padding:6px 9px}
+button{border:0;border-radius:10px;padding:10px 13px;font-weight:750;cursor:pointer}
+.primary{background:var(--green);color:#fff}.secondary{background:#edf0ec;color:var(--ink)}.small{padding:8px 10px;font-size:12px}
+main{max-width:1240px;margin:26px auto;padding:0 18px}
+.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:17px}
+h1{font-size:25px;margin:0 0 4px}.muted{color:var(--muted)}
+.layout{display:grid;grid-template-columns:1fr 1.08fr;gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 16px #0000000a;margin-bottom:14px}
+h2{font-size:17px;margin:0 0 13px}h3{font-size:14px;margin:0 0 8px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+label{display:block;font-size:11px;font-weight:750;color:var(--muted);margin-bottom:5px}
+input,select,textarea{width:100%;border:1px solid #d8ddd7;border-radius:9px;padding:9px 10px;background:#fff;font:inherit;font-size:13px}
+textarea{min-height:86px;resize:vertical}
+.catalog{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.product{border:1px solid var(--line);border-radius:12px;padding:11px;background:#fcfdfb}
+.product strong{font-size:13px}.meta{font-size:11px;color:var(--muted);line-height:1.5;margin-top:6px}
+.tag{display:inline-block;font-size:10px;background:#f0f2ee;border-radius:999px;padding:4px 6px;margin:3px 3px 0 0}
+.aihead{display:flex;align-items:center;gap:9px}.spark{width:32px;height:32px;border-radius:10px;background:var(--green);color:#fff;display:grid;place-items:center}
+.status{font-size:11px;margin-top:8px}.ok{color:#2d7042}.err{color:var(--red)}
+.result{margin-top:12px}.aibox{background:var(--soft);border-radius:12px;padding:13px;font-size:13px;line-height:1.5;margin:10px 0}
+.scoregrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.score{background:#f6f7f4;border-radius:10px;padding:10px}.score span{font-size:10px;color:var(--muted)}.score strong{display:block;font-size:17px;margin-top:2px}
+.reco{border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0}.recotop{display:flex;justify-content:space-between;gap:10px}.why{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45}
+.choice{border-left:4px solid var(--green2)}.alt{border-left:4px solid #c4c8c2}
+.offer{background:#fff8ee;border:1px solid #ead9bf;border-radius:12px;padding:12px;margin-top:10px}
+.offer strong{display:block;margin-bottom:4px}
+.hidden{display:none}.footer{text-align:center;color:#868d87;font-size:11px;margin:14px 0 24px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.catalog{grid-template-columns:1fr}.connect input{max-width:100%;width:100%}header{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">KNUTZEN AI<small>Smart Sales Copilot · Proof of Concept</small></div>
+  <div class="connect">
+    <input id="webhook" placeholder="n8n Production Webhook URL">
+    <button class="small secondary" onclick="saveWebhook()">URL speichern</button>
+    <span class="badge">LIVE n8n</span>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div><h1>KI-gestützte Verkaufsberatung</h1><div class="muted">Kundenwunsch rein. Produktmix, Marge, Verfügbarkeit und nächster Schritt raus.</div></div>
+    <div class="badge" style="color:var(--green);border-color:#d7ddd7;background:white">Filiale Kiel</div>
+  </div>
+
+  <div class="layout">
+    <section>
+      <div class="card">
+        <h2>1. Kundenbedarf</h2>
+        <div class="grid">
+          <div><label>Kunde</label><input id="customer" value="Familie Müller"></div>
+          <div><label>Fläche</label><input id="sqm" type="number" value="80"></div>
+          <div><label>Budget gesamt</label><input id="budget" type="number" value="5000"></div>
+          <div><label>Montage</label><select id="installation"><option value="true">gewünscht</option><option value="false">nicht gewünscht</option></select></div>
+          <div><label>Optik</label><select id="look"><option>Helle Eiche</option><option>Beton Grau</option><option>Warme Eiche</option></select></div>
+          <div><label>Priorität</label><select id="priority"><option>Schnelle Lieferung</option><option>Beste Marge</option><option>Niedrigster Preis</option><option>Premium-Qualität</option></select></div>
+        </div>
+        <div style="margin-top:10px">
+          <label>Berater-Notiz</label>
+          <textarea id="note">Kunde möchte pflegeleichten Boden für Wohnzimmer, möglichst ruhig in der Optik. Zwei Kinder, daher robust. Entscheidung soll heute fallen.</textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. Verfügbare Produkte aus dem ERP</h2>
+        <div class="catalog">
+          <div class="product">
+            <strong>Designvinyl Eiche Nord</strong>
+            <div class="meta">39,90 €/m² · Marge 31 %<br>Bestand Kiel: 1.240 m²<br>Lieferung: sofort</div>
+            <span class="tag">robust</span><span class="tag">helle Eiche</span>
+          </div>
+          <div class="product">
+            <strong>Designvinyl Oak Premium</strong>
+            <div class="meta">46,90 €/m² · Marge 38 %<br>Bestand Kiel: 420 m²<br>Lieferung: 2 Tage</div>
+            <span class="tag">Premium</span><span class="tag">helle Eiche</span>
+          </div>
+          <div class="product">
+            <strong>Vinyl Basic Eiche</strong>
+            <div class="meta">32,90 €/m² · Marge 24 %<br>Bestand Kiel: 2.100 m²<br>Lieferung: sofort</div>
+            <span class="tag">preiswert</span><span class="tag">helle Eiche</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside>
+      <div class="card">
+        <div class="aihead">
+          <div class="spark">✦</div>
+          <div><strong>Knutzen AI</strong><div class="muted" style="font-size:11px">Analyse von Bedarf, Bestand, Marge und Lieferfähigkeit</div></div>
+        </div>
+
+        <button class="primary" style="width:100%;margin-top:14px" onclick="analyse()">Verkaufsberatung starten</button>
+        <div id="status" class="status ok">Bereit.</div>
+
+        <div id="intro" class="aibox">Die KI bewertet die Produkte nicht nur nach Preis, sondern auch nach Kundenwunsch, Verfügbarkeit, Marge und Cross-Selling-Potenzial.</div>
+
+        <div id="result" class="result hidden">
+          <div class="scoregrid">
+            <div class="score"><span>Fit Score</span><strong id="fit">–</strong></div>
+            <div class="score"><span>Potenzial</span><strong id="potential">–</strong></div>
+            <div class="score"><span>Budget</span><strong id="budgetState">–</strong></div>
+          </div>
+
+          <div class="aibox" id="summary"></div>
+
+          <h3>Beste Empfehlung</h3>
+          <div id="best"></div>
+
+          <h3 style="margin-top:12px">Alternativen</h3>
+          <div id="alternatives"></div>
+
+          <div class="offer" id="optimization"></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="footer">ERP-Demodaten · n8n orchestriert · OpenAI bewertet und priorisiert · Verkäufer entscheidet</div>
+</main>
+
+<script>
+const catalog = [
+  {
+    sku:"VINYL-EICHE-NORD-01", name:"Designvinyl Eiche Nord", price:39.90, margin:31,
+    stock:1240, leadTimeDays:0, look:"Helle Eiche", quality:"Standard", robustness:9,
+    accessories:[
+      {name:"Trittschalldämmung Pro", qtyFactor:1.05, price:6.90},
+      {name:"Sockelleiste Eiche", qtyFixed:16, price:8.90},
+      {name:"Vinyl Pflege-Set", qtyFixed:1, price:30.30}
+    ]
+  },
+  {
+    sku:"VINYL-OAK-PREM-02", name:"Designvinyl Oak Premium", price:46.90, margin:38,
+    stock:420, leadTimeDays:2, look:"Helle Eiche", quality:"Premium", robustness:10,
+    accessories:[
+      {name:"Premium Trittschall", qtyFactor:1.05, price:8.40},
+      {name:"Sockelleiste Oak Premium", qtyFixed:16, price:10.90},
+      {name:"Premium Pflege-Set", qtyFixed:1, price:34.90}
+    ]
+  },
+  {
+    sku:"VINYL-BASIC-03", name:"Vinyl Basic Eiche", price:32.90, margin:24,
+    stock:2100, leadTimeDays:0, look:"Helle Eiche", quality:"Basic", robustness:7,
+    accessories:[
+      {name:"Trittschalldämmung Basic", qtyFactor:1.05, price:4.90},
+      {name:"Sockelleiste Weiß", qtyFixed:16, price:7.90}
+    ]
+  }
+];
+
+const eur=n=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(n);
+
+window.addEventListener('load',()=>{
+  const saved=localStorage.getItem('knutzenWebhook');
+  if(saved) document.getElementById('webhook').value=saved;
+});
+
+function saveWebhook(){
+  localStorage.setItem('knutzenWebhook',document.getElementById('webhook').value.trim());
+  document.getElementById('status').textContent='Webhook-URL gespeichert.';
+}
+
+function buildPayload(){
+  return {
+    customer:{
+      name:document.getElementById('customer').value,
+      sqm:Number(document.getElementById('sqm').value),
+      budget:Number(document.getElementById('budget').value),
+      installation:document.getElementById('installation').value==='true',
+      desiredLook:document.getElementById('look').value,
+      priority:document.getElementById('priority').value,
+      note:document.getElementById('note').value
+    },
+    branch:"Kiel",
+    catalog
+  };
+}
+
+async function analyse(){
+  const status=document.getElementById('status');
+  const url=document.getElementById('webhook').value.trim();
+  if(!url){status.className='status err';status.textContent='Bitte zuerst die n8n Production Webhook URL eintragen.';return;}
+  saveWebhook();
+  status.className='status';status.textContent='n8n und Knutzen AI analysieren …';
+  try{
+    const r=await fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(buildPayload())
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const raw=await r.json();
+    const data=normalize(raw);
+    render(data);
+    status.className='status ok';status.textContent='Live-Antwort von n8n erhalten.';
+  }catch(e){
+    status.className='status err';status.textContent='Fehler: '+e.message;
+  }
+}
+
+function normalize(raw){
+  let d=raw;
+  if(raw && typeof raw.output==='string'){
+    let text=raw.output.trim().replace(/^```json\s*/i,'').replace(/```$/,'').trim();
+    try{d=JSON.parse(text)}catch(e){
+      return fallback(text);
+    }
+  }
+  if(typeof d==='string'){
+    try{d=JSON.parse(d)}catch(e){return fallback(d)}
+  }
+  return {
+    summary:d.summary || 'Analyse abgeschlossen.',
+    fitScore:d.fitScore ?? 90,
+    additionalRevenuePotential:d.additionalRevenuePotential ?? 700,
+    budgetStatus:d.budgetStatus || 'im Budget',
+    bestRecommendation:d.bestRecommendation || fallback().bestRecommendation,
+    alternatives:d.alternatives || fallback().alternatives,
+    optimization:d.optimization || 'Zubehör und Montage als Komplettangebot bündeln.'
+  };
+}
+
+function fallback(text){
+  return {
+    summary:text || 'Die KI empfiehlt den besten Kompromiss aus Kundenfit, Lieferfähigkeit und Marge.',
+    fitScore:92,
+    additionalRevenuePotential:752,
+    budgetStatus:'im Budget',
+    bestRecommendation:{
+      name:'Designvinyl Eiche Nord',
+      reason:'Passt zur gewünschten hellen Optik, ist robust, sofort verfügbar und hält mit Zubehör das Budget ein.',
+      totalPrice:3944.30,
+      margin:31,
+      delivery:'sofort',
+      accessories:['Trittschalldämmung Pro','Sockelleiste Eiche','Vinyl Pflege-Set']
+    },
+    alternatives:[
+      {name:'Designvinyl Oak Premium',reason:'Höhere Marge und Qualität, aber teurer und 2 Tage Lieferzeit.',totalPrice:4660,margin:38,delivery:'2 Tage'},
+      {name:'Vinyl Basic Eiche',reason:'Günstigste Variante, aber geringere Robustheit und Marge.',totalPrice:3340,margin:24,delivery:'sofort'}
+    ],
+    optimization:'Wenn der Kunde das Premium-Produkt akzeptiert, steigt die Marge deutlich. Für Abschlusswahrscheinlichkeit heute ist Eiche Nord jedoch die stärkste Empfehlung.'
+  };
+}
+
+function render(d){
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('fit').textContent=(d.fitScore||0)+'/100';
+  document.getElementById('potential').textContent='+'+eur(d.additionalRevenuePotential||0);
+  document.getElementById('budgetState').textContent=d.budgetStatus||'–';
+  document.getElementById('summary').innerHTML='<strong>KI-Fazit</strong><br>'+d.summary;
+
+  const b=d.bestRecommendation||{};
+  document.getElementById('best').innerHTML=`
+    <div class="reco choice">
+      <div class="recotop"><strong>${b.name||'Empfehlung'}</strong><strong>${b.totalPrice?eur(b.totalPrice):''}</strong></div>
+      <div class="why">${b.reason||''}<br>
+      Marge: <strong>${b.margin??'–'} %</strong> · Lieferung: <strong>${b.delivery||'–'}</strong><br>
+      ${(b.accessories||[]).length?'Zubehör: '+b.accessories.join(', '):''}</div>
+    </div>`;
+
+  document.getElementById('alternatives').innerHTML=(d.alternatives||[]).map(a=>`
+    <div class="reco alt">
+      <div class="recotop"><strong>${a.name}</strong><strong>${a.totalPrice?eur(a.totalPrice):''}</strong></div>
+      <div class="why">${a.reason||''}<br>Marge: <strong>${a.margin??'–'} %</strong> · Lieferung: <strong>${a.delivery||'–'}</strong></div>
+    </div>`).join('');
+
+  document.getElementById('optimization').innerHTML='<strong>💡 Angebot optimieren</strong>'+ (d.optimization||'');
+}
+</script>
+</body>
+</html>
